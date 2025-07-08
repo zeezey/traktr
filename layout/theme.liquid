@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+    {{ content_for_header }}
+    <link rel="stylesheet" href="/assets/theme.css">
+    <style>
+      html, body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        height: 100%;
+        width: 100vw;
+        background: url('{{ 'tractor-bg.jpg' | asset_url }}) center center / cover no-repeat fixed;
+        color: #fff;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        overflow-x: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    {% section 'header' %}
+    <main>
+      {{ content_for_layout }}
+    </main>
+    <div style="position: fixed; left: 0; right: 0; bottom: 40px; display: flex; justify-content: center; z-index: 10; pointer-events: none;">
+      <!-- social icons here -->
+    </div>
+  </body>
+</html> 

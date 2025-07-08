@@ -1,0 +1,19 @@
+a {
+  transition: color 0.2s;
+}
+a:hover {
+  color: #FFD700;
+}
+
+@media (max-width: 600px) {
+  nav {
+    flex-direction: column !important;
+    gap: 20px !important;
+  }
+  header {
+    margin-top: 20px !important;
+  }
+  img {
+    max-width: 90vw !important;
+  }
+} 
