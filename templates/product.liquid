@@ -1,0 +1,20 @@
+<div style="max-width: 900px; margin: 160px auto 60px; background: rgba(0,0,0,0.7); padding: 40px; border-radius: 12px; color: #fff; text-align: center;">
+  <h1>{{ product.title }}</h1>
+  <div style="margin-top: 20px;">
+    {% if product.featured_image %}
+      <img src="{{ product.featured_image | img_url: '600x' }}" alt="{{ product.title }}" style="max-width: 100%; height: auto;" />
+    {% endif %}
+  </div>
+  <div style="margin-top: 20px;">
+    {{ product.description | newline_to_br }}
+  </div>
+  {% form 'product', product, class: 'add-to-cart-form' %}
+    <select name="id" style="padding: 8px; border-radius: 4px; margin-right: 8px;">
+      {% for variant in product.variants %}
+        <option value="{{ variant.id }}">{{ variant.title }}</option>
+      {% endfor %}
+    </select>
+    <input type="number" name="quantity" value="1" min="1" style="width: 60px; padding: 8px; border-radius: 4px; margin-right: 8px;" />
+    <button type="submit" style="padding: 10px 20px; border: none; border-radius: 4px; background: #fff; color: #000; font-weight: bold; cursor: pointer;">Add to Cart</button>
+  {% endform %}
+</div>
