@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page_title }}</title>
     {{ content_for_header }}
-    <link rel="stylesheet" href="/assets/theme.css">
+    <link rel="stylesheet" href="{{ 'theme.css' | asset_url }}">
     <style>
       html, body {
         height: 100%;
@@ -16,7 +16,7 @@
         min-height: 100vh;
         height: 100%;
         width: 100vw;
-        background: url('{{ 'tractor-bg.jpg' | asset_url }}) center center / cover no-repeat fixed;
+        background: url('{{ 'tractor-bg.jpg' | asset_url }}') center center / cover no-repeat fixed;
         color: #fff;
         font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
         overflow-x: hidden;
@@ -28,8 +28,237 @@
     <main>
       {{ content_for_layout }}
     </main>
+    <div id="cart-modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Your Cart</h2>
+        <div id="cart-modal-items"></div>
+        <div id="cart-modal-total" style="margin-top:10px;text-align:right;font-weight:bold;"></div>
+        <a href="/cart" class="view-cart-btn">View Cart / Checkout</a>
+      </div>
+    </div>
     <div style="position: fixed; left: 0; right: 0; bottom: 40px; display: flex; justify-content: center; z-index: 10; pointer-events: none;">
       <!-- social icons here -->
     </div>
+    {{ 'cart.js' | asset_url | script_tag }}
+<!-- Global Product Modal -->
+    <div class="product-modal-overlay" id="product-modal-overlay">
+      <div class="product-modal" id="product-modal">
+        <button class="product-modal-close" id="product-modal-close">&times;</button>
+        <div class="product-modal-images">
+          <img id="product-modal-main-img" class="product-modal-main-img" src="" alt="" />
+          <div class="product-modal-thumbs" id="product-modal-thumbs"></div>
+        </div>
+        <div class="product-modal-details">
+          <div class="product-modal-title" id="product-modal-title"></div>
+          <div class="product-modal-price" id="product-modal-price"></div>
+          <form class="product-modal-form" id="product-modal-form">
+            <select id="product-modal-variants" style="margin-bottom: 12px; padding: 8px; font-size: 1rem; width: 100%;"></select>
+            <input type="number" id="product-modal-qty" value="1" min="1" style="width: 60px; margin-bottom: 12px; padding: 8px; font-size: 1rem;" />
+            <button type="submit" class="product-modal-add-btn">Add to cart</button>
+          </form>
+          <div class="product-modal-description" id="product-modal-description"></div>
+        </div>
+      </div>
+    </div>
+    <style>
+      .product-modal-overlay {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0; top: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.7);
+        justify-content: center;
+        align-items: center;
+      }
+      .product-modal-overlay.active { display: flex; }
+      .product-modal {
+        background: #fff;
+        color: #000;
+        border-radius: 10px;
+        max-width: 900px;
+        width: 95vw;
+        max-height: 90vh;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: row;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+        position: relative;
+      }
+      .product-modal-close {
+        position: absolute;
+        top: 24px;
+        right: 32px;
+        font-size: 2rem;
+        color: #000;
+        background: none;
+        border: none;
+        cursor: pointer;
+        z-index: 10;
+      }
+      .product-modal-images {
+        flex: 1 1 50%;
+        padding: 40px 24px 40px 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .product-modal-main-img {
+        width: 320px;
+        height: 320px;
+        object-fit: contain;
+        margin-bottom: 16px;
+        background: #f5f5f5;
+        border-radius: 8px;
+      }
+      .product-modal-thumbs {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .product-modal-thumb {
+        width: 56px;
+        height: 56px;
+        object-fit: contain;
+        background: #f5f5f5;
+        border-radius: 4px;
+        cursor: pointer;
+        border: 2px solid transparent;
+      }
+      .product-modal-thumb.selected {
+        border: 2px solid #000;
+      }
+      .product-modal-details {
+        flex: 1 1 50%;
+        padding: 40px 40px 40px 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .product-modal-title {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 12px;
+      }
+      .product-modal-price {
+        font-size: 1.2rem;
+        margin-bottom: 16px;
+      }
+      .product-modal-form {
+        margin-bottom: 24px;
+      }
+      .product-modal-description {
+        font-size: 1rem;
+        margin-bottom: 16px;
+      }
+      .product-modal-add-btn {
+        display: inline-block;
+        padding: 12px 32px;
+        background: #000;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 1rem;
+        cursor: pointer;
+        margin-top: 12px;
+      }
+      @media (max-width: 800px) {
+        .product-modal { flex-direction: column; }
+        .product-modal-images, .product-modal-details { padding: 24px; }
+        .product-modal-main-img { width: 90vw; height: 240px; }
+      }
+    </style>
+    <script>
+    (function() {
+      function $(sel) { return document.querySelector(sel); }
+      function $all(sel) { return Array.from(document.querySelectorAll(sel)); }
+
+      var overlay = document.getElementById('product-modal-overlay');
+      var modal = document.getElementById('product-modal');
+      var closeBtn = document.getElementById('product-modal-close');
+      var mainImg = document.getElementById('product-modal-main-img');
+      var thumbs = document.getElementById('product-modal-thumbs');
+      var title = document.getElementById('product-modal-title');
+      var price = document.getElementById('product-modal-price');
+      var variants = document.getElementById('product-modal-variants');
+      var qty = document.getElementById('product-modal-qty');
+      var desc = document.getElementById('product-modal-description');
+      var form = document.getElementById('product-modal-form');
+      var currentVariantId = null;
+
+      function openModal(product) {
+        // Images
+        mainImg.src = product.images[0] ? product.images[0].src : '';
+        mainImg.alt = product.title;
+        thumbs.innerHTML = '';
+        product.images.forEach(function(img, idx) {
+          var thumb = document.createElement('img');
+          thumb.src = img.src;
+          thumb.className = 'product-modal-thumb' + (idx === 0 ? ' selected' : '');
+          thumb.onclick = function() {
+            $all('.product-modal-thumb').forEach(t => t.classList.remove('selected'));
+            thumb.classList.add('selected');
+            mainImg.src = img.src;
+          };
+          thumbs.appendChild(thumb);
+        });
+        // Title, price, description
+        title.textContent = product.title;
+        price.textContent = Shopify.formatMoney(product.price, "${{amount}}") || '';
+        desc.innerHTML = product.description;
+        // Variants
+        variants.innerHTML = '';
+        product.variants.forEach(function(variant, idx) {
+          var opt = document.createElement('option');
+          opt.value = variant.id;
+          opt.textContent = variant.title + (variant.available ? '' : ' (Sold out)');
+          if (!variant.available) opt.disabled = true;
+          variants.appendChild(opt);
+          if (idx === 0) currentVariantId = variant.id;
+        });
+        variants.onchange = function() { currentVariantId = this.value; };
+        qty.value = 1;
+        overlay.classList.add('active');
+      }
+
+      function closeModal() {
+        overlay.classList.remove('active');
+      }
+
+      document.body.addEventListener('click', function(e) {
+        var target = e.target.closest('.open-product-modal');
+        if (target) {
+          e.preventDefault();
+          var handle = target.getAttribute('data-handle');
+          fetch('/products/' + handle + '.js')
+            .then(res => res.json())
+            .then(product => openModal(product));
+        }
+      });
+
+      closeBtn.onclick = closeModal;
+      overlay.onclick = function(e) { if (e.target === overlay) closeModal(); };
+      document.onkeydown = function(e) { if (e.key === 'Escape') closeModal(); };
+
+      form.onsubmit = function(e) {
+        e.preventDefault();
+        var id = variants.value;
+        var quantity = qty.value;
+        fetch('/cart/add.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: id, quantity: quantity })
+        })
+        .then(res => res.json())
+        .then(function() {
+          closeModal();
+          alert('Added to cart!');
+        });
+      };
+    })();
+    </script>
+    
   </body>
 </html> 
