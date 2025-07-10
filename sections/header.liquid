@@ -1,10 +1,25 @@
-<header style="width: 100%; text-align: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; margin-top: 0;">
-  <nav style="display: flex; justify-content: center; align-items: center; gap: 40px; padding: 12px 0;">
-    <a href="/pages/about" style="color: #fff; text-decoration: none; font-size: 1.2rem;">About</a>
-    <a href="/pages/releases" style="color: #fff; text-decoration: none; font-size: 1.2rem;">Releases</a>
-    <a href="/pages/merch" style="color: #fff; text-decoration: none; font-size: 1.2rem;">Merch</a>
-    <a href="/pages/events" style="color: #fff; text-decoration: none; font-size: 1.2rem;">Events</a>
-    <a href="/pages/contact" style="color: #fff; text-decoration: none; font-size: 1.2rem;">Contact</a>
-    <a href="/pages/send-demo" style="color: #fff; text-decoration: none; font-size: 1.2rem;">Send Demo</a>
+{% assign no_fixed = false %}
+{% if template.name == 'page' %}
+  {% if page.handle == 'merch' or page.handle == 'releases' %}
+    {% assign no_fixed = true %}
+  {% endif %}
+{% elsif template.name == 'collection' and collection.handle == 'merch' %}
+  {% assign no_fixed = true %}
+{% endif %}
+<header class="site-header{% unless no_fixed %} fixed{% endunless %}">
+  <nav class="main-nav">
+    <div class="nav-center">
+      <a href="/pages/about">About</a>
+      <a href="/collections/merch">Merch</a>
+      <a href="/pages/releases">Releases</a>
+    </div>
+    <a href="/" class="logo-link">
+      <img src="{{ 'Main-logo-white.png' | asset_url }}" alt="TRAKTR Records" class="nav-logo" />
+    </a>
+    <div class="nav-right">
+      <a href="#" id="cart-link">Cart (<span id="cart-count">0</span>)</a>
+      <a href="/pages/contact">Contact</a>
+      <a href="mailto:demos@traktrrecords.com">Send Demo</a>
+    </div>
   </nav>
-</header> 
+</header>
