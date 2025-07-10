@@ -113,6 +113,8 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
 
+
+
   fetch('/cart.js', { headers: { Accept: 'application/json' } })
     .then(function (resp) { return resp.json(); })
     .then(function (cart) {
