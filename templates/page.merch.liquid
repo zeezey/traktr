@@ -1,235 +1,117 @@
-{% assign merch_collection = collections['merch'] %}
-<style>
-  .product-modal-overlay {
-    display: none;
-    position: fixed;
-    z-index: 9999;
-    left: 0; top: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.7);
-    justify-content: center;
-    align-items: center;
-  }
-  .product-modal-overlay.active { display: flex; }
-  .product-modal {
-    background: #fff;
-    color: #000;
-    border-radius: 10px;
-    max-width: 900px;
-    width: 95vw;
-    max-height: 90vh;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: row;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-    position: relative;
-  }
-  .product-modal-close {
-    position: absolute;
-    top: 24px;
-    right: 32px;
-    font-size: 2rem;
-    color: #000;
-    background: none;
-    border: none;
-    cursor: pointer;
-    z-index: 10;
-  }
-  .product-modal-images {
-    flex: 1 1 50%;
-    padding: 40px 24px 40px 40px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-  .product-modal-main-img {
-    width: 320px;
-    height: 320px;
-    object-fit: contain;
-    margin-bottom: 16px;
-    background: #f5f5f5;
-    border-radius: 8px;
-  }
-  .product-modal-thumbs {
-    display: flex;
-    gap: 8px;
-    margin-top: 8px;
-  }
-  .product-modal-thumb {
-    width: 56px;
-    height: 56px;
-    object-fit: contain;
-    background: #f5f5f5;
-    border-radius: 4px;
-    cursor: pointer;
-    border: 2px solid transparent;
-  }
-  .product-modal-thumb.selected {
-    border: 2px solid #000;
-  }
-  .product-modal-details {
-    flex: 1 1 50%;
-    padding: 40px 40px 40px 24px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  .product-modal-title {
-    font-size: 2rem;
-    font-weight: bold;
-    margin-bottom: 12px;
-  }
-  .product-modal-price {
-    font-size: 1.2rem;
-    margin-bottom: 16px;
-  }
-  .product-modal-form {
-    margin-bottom: 24px;
-  }
-  .product-modal-description {
-    font-size: 1rem;
-    margin-bottom: 16px;
-  }
-  .product-modal-add-btn {
-    display: inline-block;
-    padding: 12px 32px;
-    background: #000;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    font-weight: bold;
-    font-size: 1rem;
-    cursor: pointer;
-    margin-top: 12px;
-  }
-  @media (max-width: 800px) {
-    .product-modal { flex-direction: column; }
-    .product-modal-images, .product-modal-details { padding: 24px; }
-    .product-modal-main-img { width: 90vw; height: 240px; }
-  }
-</style>
-
-<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; background: #000; padding: 40px 0; min-height: 100vh;">
-  {% for product in merch_collection.products %}
-    <div style="background: #fff; color: #000; width: 320px; border-radius: 8px; overflow: hidden; text-align: center; margin-bottom: 40px; box-shadow: 0 8px 24px rgba(0,0,0,0.15);">
-      <a href="{{ product.url }}" class="open-product-modal" data-handle="{{ product.handle }}" style="display: block; background: #f5f5f5;">
-        <img src="{{ product.featured_image | img_url: '600x600' }}" alt="{{ product.title }}" style="width: 100%; height: auto;"/>
-      </a>
-      <div style="padding: 24px;">
-        <h3 style="font-size: 1.1rem; font-weight: bold; margin-bottom: 8px;">{{ product.title }}</h3>
-        <div style="margin-bottom: 16px;">{{ product.price | money }}</div>
-        <a href="{{ product.url }}" class="open-product-modal" data-handle="{{ product.handle }}" style="display: inline-block; padding: 10px 24px; border: 2px solid #000; background: #fff; color: #000; font-weight: bold; border-radius: 4px; text-decoration: none;">View product</a>
+<div style="max-width: 900px; margin: 160px auto 60px; background: rgba(0,0,0,0.7); padding: 40px; border-radius: 12px; color: #fff; text-align: center;">
+  <h1>TRAKTR Records Merch</h1>
+</div> 
+  <div class="product-grid" style="margin-top: 40px;">
+    {% for product in collections['merch'].products %}
+      <div class="product" data-modal="modal-{{ product.id }}" data-images="{% for image in product.images %}{{ image | img_url: '500x' }}{% unless forloop.last %},{% endunless %}{% endfor %}">
+        {% if product.featured_image %}
+          <img src="{{ product.featured_image | img_url: '500x' }}" alt="{{ product.title }}" />
+        {% endif %}
+        <p style="margin-top: 8px;">{{ product.title }}</p>
+        <p class="product-price">{{ product.price | money }}</p>
+        <button type="button" class="view-product-btn" data-modal="modal-{{ product.id }}">View Product</button>
       </div>
-    </div>
-  {% endfor %}
-</div>
-
-<!-- Product Modal -->
-<div class="product-modal-overlay" id="product-modal-overlay">
-  <div class="product-modal" id="product-modal">
-    <button class="product-modal-close" id="product-modal-close">&times;</button>
-    <div class="product-modal-images">
-      <img id="product-modal-main-img" class="product-modal-main-img" src="" alt="" />
-      <div class="product-modal-thumbs" id="product-modal-thumbs"></div>
-    </div>
-    <div class="product-modal-details">
-      <div class="product-modal-title" id="product-modal-title"></div>
-      <div class="product-modal-price" id="product-modal-price"></div>
-      <form class="product-modal-form" id="product-modal-form">
-        <select id="product-modal-variants" style="margin-bottom: 12px; padding: 8px; font-size: 1rem; width: 100%;"></select>
-        <input type="number" id="product-modal-qty" value="1" min="1" style="width: 60px; margin-bottom: 12px; padding: 8px; font-size: 1rem;" />
-        <button type="submit" class="product-modal-add-btn">Add to cart</button>
-      </form>
-      <div class="product-modal-description" id="product-modal-description"></div>
-    </div>
+    {% endfor %}
   </div>
 </div>
 
+{% for product in collections['merch'].products %}
+  <div id="modal-{{ product.id }}" class="modal" data-images="{% for image in product.images %}{{ image | img_url: '600x' }}{% unless forloop.last %},{% endunless %}{% endfor %}">
+    <div class="modal-content">
+      <span class="close" data-modal="modal-{{ product.id }}">&times;</span>
+      <span class="prev arrow">&#10094;</span>
+      <span class="next arrow">&#10095;</span>
+      {% if product.featured_image %}
+        <img class="modal-image" src="{{ product.featured_image | img_url: '600x' }}" alt="{{ product.title }}" />
+      {% endif %}
+      <h2 style="margin-top: 20px;">{{ product.title }}</h2>
+      <div style="margin-top: 10px;">{{ product.description | newline_to_br }}</div>
+      {% form 'product', product, class: 'add-to-cart-form' %}
+        <select name="id" style="padding: 8px; border-radius: 4px; margin-right: 8px;">
+          {% for variant in product.variants %}
+            <option value="{{ variant.id }}">{{ variant.title }}</option>
+          {% endfor %}
+        </select>
+        <input type="number" name="quantity" value="1" min="1" style="width: 60px; padding: 8px; border-radius: 4px; margin-right: 8px;" />
+        <button type="submit" style="padding: 10px 20px; border: none; border-radius: 4px; background: #FFD700; color: #000; font-weight: bold; cursor: pointer;">Add to Cart</button>
+      {% endform %}
+    </div>
+  </div>
+{% endfor %}
+
 <script>
-(function() {
-  function $(sel) { return document.querySelector(sel); }
-  function $all(sel) { return Array.from(document.querySelectorAll(sel)); }
-
-  var overlay = document.getElementById('product-modal-overlay');
-  var modal = document.getElementById('product-modal');
-  var closeBtn = document.getElementById('product-modal-close');
-  var mainImg = document.getElementById('product-modal-main-img');
-  var thumbs = document.getElementById('product-modal-thumbs');
-  var title = document.getElementById('product-modal-title');
-  var price = document.getElementById('product-modal-price');
-  var variants = document.getElementById('product-modal-variants');
-  var qty = document.getElementById('product-modal-qty');
-  var desc = document.getElementById('product-modal-description');
-  var form = document.getElementById('product-modal-form');
-  var currentVariantId = null;
-
-  function openModal(product) {
-    // Images
-    mainImg.src = product.images[0] ? product.images[0].src : '';
-    mainImg.alt = product.title;
-    thumbs.innerHTML = '';
-    product.images.forEach(function(img, idx) {
-      var thumb = document.createElement('img');
-      thumb.src = img.src;
-      thumb.className = 'product-modal-thumb' + (idx === 0 ? ' selected' : '');
-      thumb.onclick = function() {
-        $all('.product-modal-thumb').forEach(t => t.classList.remove('selected'));
-        thumb.classList.add('selected');
-        mainImg.src = img.src;
-      };
-      thumbs.appendChild(thumb);
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.product').forEach(function (prod) {
+      var imgs = prod.dataset.images ? prod.dataset.images.split(',') : [];
+      var imgTag = prod.querySelector('img');
+      var idx = 0;
+      prod.addEventListener('mouseenter', function () {
+        if (imgs.length > 1) {
+          prod.swapInterval = setInterval(function () {
+            idx = (idx + 1) % imgs.length;
+            if (imgTag) imgTag.src = imgs[idx];
+          }, 1000);
+        }
+      });
+      prod.addEventListener('mouseleave', function () {
+        if (prod.swapInterval) clearInterval(prod.swapInterval);
+        if (imgTag && imgs.length) imgTag.src = imgs[0];
+      });
+      prod.addEventListener('click', function () {
+        var modal = document.getElementById(prod.dataset.modal);
+        if (modal) {
+          modal.classList.add('open');
+          modal.dataset.current = 0;
+          var mImgs = modal.dataset.images ? modal.dataset.images.split(',') : [];
+          var mImgTag = modal.querySelector('.modal-image');
+          if (mImgTag && mImgs.length) mImgTag.src = mImgs[0];
+        }
+      });
     });
-    // Title, price, description
-    title.textContent = product.title;
-    price.textContent = Shopify.formatMoney(product.price, "${{amount}}") || '';
-    desc.innerHTML = product.description;
-    // Variants
-    variants.innerHTML = '';
-    product.variants.forEach(function(variant, idx) {
-      var opt = document.createElement('option');
-      opt.value = variant.id;
-      opt.textContent = variant.title + (variant.available ? '' : ' (Sold out)');
-      if (!variant.available) opt.disabled = true;
-      variants.appendChild(opt);
-      if (idx === 0) currentVariantId = variant.id;
+    document.querySelectorAll('.modal .close').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.getElementById(btn.dataset.modal).classList.remove('open');
+      });
     });
-    variants.onchange = function() { currentVariantId = this.value; };
-    qty.value = 1;
-    overlay.classList.add('active');
-  }
-
-  function closeModal() {
-    overlay.classList.remove('active');
-  }
-
-  $all('.open-product-modal').forEach(function(link) {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      var handle = this.getAttribute('data-handle');
-      fetch('/products/' + handle + '.js')
-        .then(res => res.json())
-        .then(product => openModal(product));
+    document.querySelectorAll('.modal').forEach(function (modal) {
+      var images = modal.dataset.images ? modal.dataset.images.split(',') : [];
+      var imgTag = modal.querySelector('.modal-image');
+      var prev = modal.querySelector('.prev');
+      var next = modal.querySelector('.next');
+      function show(dir) {
+        if (images.length < 2) return;
+        var current = parseInt(modal.dataset.current || 0, 10);
+        if (dir === 'next') current = (current + 1) % images.length;
+        else current = (current - 1 + images.length) % images.length;
+        modal.dataset.current = current;
+        if (imgTag) imgTag.src = images[current];
+      }
+      if (prev) prev.addEventListener('click', function (e) { e.stopPropagation(); show('prev'); });
+      if (next) next.addEventListener('click', function (e) { e.stopPropagation(); show('next'); });
     });
   });
-
-  closeBtn.onclick = closeModal;
-  overlay.onclick = function(e) { if (e.target === overlay) closeModal(); };
-  document.onkeydown = function(e) { if (e.key === 'Escape') closeModal(); };
-
-  form.onsubmit = function(e) {
-    e.preventDefault();
-    var id = variants.value;
-    var quantity = qty.value;
-    fetch('/cart/add.js', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: id, quantity: quantity })
-    })
-    .then(res => res.json())
-    .then(function() {
-      closeModal();
-      alert('Added to cart!');
-    });
-  };
-})();
 </script>
+
+<div style="position: fixed; top: 50%; left: 20px; transform: translateY(-50%); z-index: 10; pointer-events: none;">
+  <div style="display: flex; flex-direction: column; gap: 24px; background: rgba(0,0,0,0.5); padding: 12px; border-radius: 12px; pointer-events: auto;">
+    <a href="https://www.instagram.com/traktrrecords/?hl=en" target="_blank" title="Instagram" style="display: inline-block;">
+      <svg width="32" height="32" fill="#fff" viewBox="0 0 24 24">
+        <path fill-rule="evenodd" d="M7.5 3.75A3.75 3.75 0 003.75 7.5v9A3.75 3.75 0 007.5 20.25h9a3.75 3.75 0 003.75-3.75v-9A3.75 3.75 0 0016.5 3.75h-9zM12 8.25a3.75 3.75 0 100 7.5 3.75 3.75 0 000-7.5zM17.25 8.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" clip-rule="evenodd"/>
+      </svg>
+    </a>
+     <a href="https://www.tiktok.com/@traktrrecords" target="_blank" title="TikTok" style="display: inline-block;">
+      <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M41.5 17.5c-3.6 0-6.5-2.9-6.5-6.5V6h-6v27.5c0 2.2-1.8 4-4 4s-4-1.8-4-4 1.8-4 4-4c.7 0 1.4.2 2 .5v-6.3c-.7-.1-1.3-.2-2-.2-5.5 0-10 4.5-10 10s4.5 10 10 10 10-4.5 10-10V23.7c1.9 1 4.1 1.8 6.5 1.8v-8z" fill="#fff"/>
+      </svg>
+    </a>
+    <a href="https://soundcloud.com/traktr-records" target="_blank" title="SoundCloud" style="display: inline-block;">
+      <svg width="32" height="32" fill="#fff" viewBox="0 0 24 24"><path d="M17.5 15.5c-.276 0-.5-.224-.5-.5V9.5c0-.276.224-.5.5-.5s.5.224.5.5v5.5c0 .276-.224.5-.5.5zm-2 0c-.276 0-.5-.224-.5-.5V7.5c0-.276.224-.5.5-.5s.5.224.5.5v7.5c0 .276-.224.5-.5.5zm-2 0c-.276 0-.5-.224-.5-.5V5.5c0-.276.224-.5.5-.5s.5.224.5.5v9.5c0 .276-.224.5-.5.5zm-2 0c-.276 0-.5-.224-.5-.5V3.5c0-.276.224-.5.5-.5s.5.224.5.5v11.5c0 .276-.224.5-.5.5zm-2 0c-.276 0-.5-.224-.5-.5V11.5c0-.276.224-.5.5-.5s.5.224.5.5v3.5c0 .276-.224.5-.5.5zm-2 0c-.276 0-.5-.224-.5-.5V13.5c0-.276.224-.5.5-.5s.5.224.5.5v1.5c0 .276-.224.5-.5.5z"/></svg>
+    </a>
+    <a href="https://open.spotify.com/playlist/4VppwrcAV36waIRKNnaY1M" target="_blank" title="Spotify" style="display: inline-block;">
+      <svg width="32" height="32" fill="#fff" viewBox="0 0 24 24"><path d="M12 0C5.371 0 0 5.371 0 12c0 6.627 5.371 12 12 12s12-5.373 12-12c0-6.629-5.371-12-12-12zm5.297 17.438c-.221.363-.691.479-1.055.258-2.891-1.771-6.543-2.168-10.822-1.18-.414.096-.832-.154-.928-.568-.096-.414.154-.832.568-.928 4.646-1.07 8.668-.627 11.857 1.289.363.221.479.691.258 1.055zm1.518-2.625c-.277.449-.857.592-1.307.316-3.309-2.039-8.354-2.633-12.26-1.434-.516.156-1.064-.133-1.221-.648-.156-.516.133-1.064.648-1.221 4.377-1.326 9.857-.68 13.637 1.602.449.277.592.857.316 1.307zm.143-2.684c-3.979-2.367-10.563-2.582-14.357-1.406-.617.188-1.273-.148-1.461-.766-.188-.617.148-1.273.766-1.461 4.229-1.289 11.438-1.045 15.922 1.602.566.338.748 1.07.41 1.637-.338.566-1.07.748-1.637.41zm.002 0"/></svg>
+    </a>
+    <a href="https://www.beatport.com/label/traktr-records/131040" target="_blank" title="Beatport" style="display: inline-block;">
+      <svg width="32" height="32" fill="#fff" viewBox="0 0 24 24"><path d="M12 0C5.371 0 0 5.371 0 12c0 6.627 5.371 12 12 12s12-5.373 12-12c0-6.629-5.371-12-12-12zm0 22c-5.514 0-10-4.486-10-10S6.486 2 12 2s10 4.486 10 10-4.486 10-10 10zm2-10c0-1.104-.896-2-2-2s-2 .896-2 2 .896 2 2 2 2-.896 2-2zm-2 4c-2.209 0-4-1.791-4-4s1.791-4 4-4 4 1.791 4 4-1.791 4-4 4z"/></svg>
+    </a>
+  </div>
+</div>
