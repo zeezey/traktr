@@ -1,9 +1,11 @@
 {% assign no_fixed = false %}
 {% if template.name == 'page' %}
-  {% if page.handle == 'merch' or page.handle == 'releases' %}
+  {% if page.handle == 'merch' or page.handle == 'releases' or page.handle == 'about' or page.handle == 'contact' or page.handle == 'cart' %}
     {% assign no_fixed = true %}
   {% endif %}
 {% elsif template.name == 'collection' and collection.handle == 'merch' %}
+  {% assign no_fixed = true %}
+  {% elsif template.name == 'cart' %}
   {% assign no_fixed = true %}
 {% endif %}
 <header class="site-header{% unless no_fixed %} fixed{% endunless %}">
