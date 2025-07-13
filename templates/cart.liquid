@@ -1,37 +1,48 @@
 {% if cart.item_count > 0 %}
-  <div style="max-width: 900px; margin: 160px auto 60px; background: rgba(0,0,0,0.7); padding: 40px; border-radius: 12px; color: #fff;">
+  <div class="cart-container" style="max-width:900px;margin:100px auto 60px;background:rgba(0,0,0,0.7);padding:40px;border-radius:12px;color:#fff;">
     <h1>Your Cart</h1>
     <form action="/cart" method="post" novalidate>
-      <table style="width: 100%; margin-top: 20px; border-collapse: collapse;">
+      <table class="cart-table" style="width:100%;margin-top:20px;border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:8px;">Item</th>
+            <th style="padding:8px;"></th>
+            <th style="text-align:center;padding:8px;">Qty</th>
+            <th style="text-align:right;padding:8px;">Price</th>
+          </tr>
+        </thead>
+        <tbody>
         {% for item in cart.items %}
           <tr>
-            <td style="padding: 8px;">
+            <td style="padding:8px;">
               {% if item.image %}
-                <img src="{{ item.image | img_url: '120x' }}" alt="{{ item.product_title }}" style="width: 100px; height: auto;">
+                <img src="{{ item.image | img_url: '120x' }}" alt="{{ item.product.title }}" style="width:80px;height:auto;" />
               {% endif %}
             </td>
-            <td style="padding: 8px;">
+            <td style="padding:8px;">
               {% assign size = item.variant.option1 %}
               {% if size == 'Default Title' %}
                 {% assign size = '' %}
               {% endif %}
-              <strong>{{ item.product_title }}</strong>{% if size %} - Size: {{ size }}{% endif %}
+              <div class="cart-item-title">{{ item.product.title }}</div>
+              {% if size %}<div class="cart-item-size">Size: {{ size }}</div>{% endif %}
             </td>
-            <td style="padding: 8px;">
-              <label>Qty:</label>
-              <input type="number" name="updates[]" value="{{ item.quantity }}" min="0" style="width: 60px; padding: 4px; border-radius: 4px; margin-left:4px;" />
+            <td style="padding:8px;text-align:center;">
+              <label class="visually-hidden" for="updates_{{ forloop.index }}">Qty</label>
+              <input id="updates_{{ forloop.index }}" type="number" name="updates[]" value="{{ item.quantity }}" min="0" style="width:60px;padding:4px;border-radius:4px;" />
             </td>
-            <td style="padding: 8px; text-align: right;">{{ item.line_price | money }}</td>
+            <td style="padding:8px;text-align:right;">{{ item.line_price | money }}</td>
           </tr>
         {% endfor %}
+        </tbody>
       </table>
-      <p style="margin-top: 20px; font-size: 1.2rem; font-weight: bold;">Total: {{ cart.total_price | money }}</p>
-      <button type="submit" name="update" style="margin-right: 10px; padding: 10px 20px; border: none; border-radius: 4px; background: #fff; color: #000; font-weight: bold; cursor: pointer;">Update</button>
-      <button type="submit" name="checkout" style="padding: 10px 20px; border: none; border-radius: 4px; background: #fff; color: #000; font-weight: bold; cursor: pointer;">Checkout</button>
+      <p style="margin-top:20px;font-size:1.2rem;font-weight:bold;">Total: {{ cart.total_price | money }}</p>
+      <button type="submit" name="update" style="margin-right:10px;padding:10px 20px;border:none;border-radius:4px;background:#fff;color:#000;font-weight:bold;cursor:pointer;">Update</button>
+      <button type="submit" name="checkout" style="padding:10px 20px;border:none;border-radius:4px;background:#fff;color:#000;font-weight:bold;cursor:pointer;">Checkout</button>
     </form>
   </div>
 {% else %}
-  <div style="max-width: 900px; margin: 160px auto 60px; background: rgba(0,0,0,0.7); padding: 40px; border-radius: 12px; color: #fff; text-align: center;">
+  <div class="cart-container" style="max-width:900px;margin:100px auto 60px;background:rgba(0,0,0,0.7);padding:40px;border-radius:12px;color:#fff;text-align:center;">
     <h1>Your Cart</h1>
     <p>Your cart is currently empty.</p>
   </div>
