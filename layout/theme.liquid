@@ -10,20 +10,38 @@
       html, body {
         height: 100%;
       }
-      body {
+            body {
+        {% if template.name == 'index' %}
+        {% assign bg_image = 'trktr.png' %}
+      {% else %}
+        {% assign bg_image = 'trktr-alt.png' %}
+      {% endif %}
+        background-image: url("{{ bg_image | asset_url }}");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-color: #000;
         margin: 0;
         padding: 0;
         min-height: 100vh;
         height: 100%;
         width: 100vw;
-        background: url('{{ 'tractor-bg.jpg' | asset_url }}') center center / cover no-repeat fixed;
+        
         color: #fff;
         font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
         overflow-x: hidden;
       }
+      @media (max-width: 768px) {
+        body {
+          background-attachment: scroll;
+          background-size: cover;
+          background-color: #000;
+        }
+      }
     </style>
   </head>
   <body>
+          
     {% section 'header' %}
     <main>
       {{ content_for_layout }}
