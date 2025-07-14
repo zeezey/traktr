@@ -278,6 +278,7 @@ nav.main-nav {
 /* generic page container */
 .page-container {
   max-width: 900px;
+   width: 75%;
   margin: 140px auto 60px;
   padding: 40px;
   background: rgba(0, 0, 0, 0.7);
@@ -369,6 +370,9 @@ border-radius: 4px;
     gap: 12px;
     width: auto;
     justify-content: center;
+    padding-right: 0;
+    padding-left: 0;
+
   }
   .logo-link {
     max-width: 60px;
