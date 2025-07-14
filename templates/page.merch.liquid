@@ -1,7 +1,7 @@
 <div class="page-container" style="text-align: center;">
   <h1>TRAKTR Records Merch</h1>
 </div> 
-  <div class="product-grid" style="margin-top: 40px;">
+  <div class="product-grid" style="margin-top: 20px;">
     {% for product in collections['merch'].products %}
       <div class="product" data-modal="modal-{{ product.id }}" data-images="{% for image in product.images %}{{ image | img_url: '500x' }}{% unless forloop.last %},{% endunless %}{% endfor %}">
         {% if product.featured_image %}
@@ -23,7 +23,7 @@
                  <img class="modal-image" src="{{ product.featured_image | image_url: '600x' }}" data-zoom="{{ product.featured_image | image_url: 'master' }}" alt="{{ product.title }}" />
       {% endif %}
       <h2 style="margin-top: 20px;">{{ product.title }}</h2>
-      <div style="margin-top: 10px;">{{ product.description | newline_to_br }}</div>
+      <div class="modal-description">{{ product.description | newline_to_br }}</div>
       {% form 'product', product, class: 'add-to-cart-form' %}
         {% for option in product.options_with_values %}
           <label for="{{ option.name | handleize }}-{{ product.id }}" style="margin-right:4px;">{{ option.name }}:</label>
@@ -101,18 +101,16 @@
       if (prev) prev.addEventListener('click', function (e) { e.stopPropagation(); show('prev'); });
       if (next) next.addEventListener('click', function (e) { e.stopPropagation(); show('next'); });
     });
-    var zoom = document.getElementById('zoom-modal');
-    var zoomImg = zoom ? zoom.querySelector('img') : null;
-    var zoomClose = zoom ? zoom.querySelector('.close') : null;
+ // FIXED: Zoom functionality
+            var zoom = document.getElementById('zoom-modal');
+            var zoomImg = zoom ? zoom.querySelector('img') : null;
+            var zoomClose = zoom ? zoom.querySelector('.close') : null;
 
-    
-    function openZoom(e) {
-      e.stopPropagation();
-      var img = this;
-      if (!zoom) return;
-      if (zoomImg) zoomImg.src = img.dataset.zoom || img.src;
-      zoom.classList.add('open');
-    }
+            function openZoom(imageSrc) {
+                if (!zoom || !zoomImg) return;
+                zoomImg.src = imageSrc;
+                zoom.classList.add('open');
+            }
 
     if (zoom && zoom.parentNode !== document.body) {
       document.body.appendChild(zoom);
@@ -134,10 +132,9 @@
       e.stopPropagation();
       zoom.classList.remove('open');
     });
-    zoom.addEventListener('click', function () {
-          if (zoom) zoom.addEventListener('click', function () {
-      zoom.classList.remove('open');
-    });
+  zoom.addEventListener('click', function () {
+    zoom.classList.remove('open');
+});
   });
 </script>
 
