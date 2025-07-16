@@ -18,6 +18,7 @@
       {% endif %}
         background-image: url("{{ bg_image | asset_url }}");
         background-size: cover;
+        background-position: center center;
         background-repeat: no-repeat;
         background-attachment: fixed;
         background-color: #000;
@@ -34,7 +35,9 @@
       @media (max-width: 768px) {
         body {
           background-attachment: scroll;
+          background-image: url("{{ bg_image | asset_url  }}");
           background-size: cover;
+          background-position: center center;
           background-color: #000;
         }
       }
@@ -75,7 +78,7 @@
             <input type="number" id="product-modal-qty" value="1" min="1" style="width: 60px; margin-bottom: 12px; padding: 8px; font-size: 1rem;" />
             <button type="submit" class="product-modal-add-btn">Add to cart</button>
           </form>
-          <div class="product-modal-description" id="product-modal-description"></div>
+          <div class="modal-description" id="modal-description"></div>
         </div>
       </div>
     </div>
