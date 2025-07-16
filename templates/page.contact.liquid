@@ -1,12 +1,17 @@
-<div style="max-width: 700px; margin: 50px auto 60px; background: rgba(0,0,0,0.7); padding: 40px; border-radius: 12px; color: #fff;">
+<div style="max-width: 700px; margin: 30px auto 60px; background: rgba(0,0,0,0.7); padding: 40px; border-radius: 12px; color: #fff;">
   <h1>Contact</h1>
-  <form action="mailto:max@traktrrecords.com" method="post" enctype="text/plain" style="display: flex; flex-direction: column; gap: 20px;">
-    <label for="name">Name</label>
-    <input type="text" id="name" name="name" required style="padding: 8px; border-radius: 4px; border: none;" />
-    <label for="email">Email</label>
-    <input type="email" id="email" name="email" required style="padding: 8px; border-radius: 4px; border: none;" />
-    <label for="message">Message</label>
-    <textarea id="message" name="message" rows="5" required style="padding: 8px; border-radius: 4px; border: none;"></textarea>
-    <button type="submit" style="padding: 10px 20px; border: none; border-radius: 4px; background: #fff; color: #000; font-weight: bold; cursor: pointer;">Send</button>
-  </form>
+ {% form 'contact' %}
+    {{ form.errors | default_errors }}
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      <label for="ContactName">Name</label>
+      <input type="text" id="ContactName" name="contact[name]" required style="padding: 8px; border-radius: 4px; border: none;" />
+      <label for="ContactEmail">Email</label>
+      <input type="email" id="ContactEmail" name="contact[email]" required style="padding: 8px; border-radius: 4px; border: none;" />
+      <label for="ContactSubject">Subject</label>
+      <input type="text" id="ContactSubject" name="contact[subject]" style="padding: 8px; border-radius: 4px; border: none;" />
+      <label for="ContactMessage">Message</label>
+      <textarea id="ContactMessage" name="contact[body]" rows="5" required style="padding: 8px; border-radius: 4px; border: none;"></textarea>
+      <button type="submit" style="padding: 10px 20px; border: none; border-radius: 4px; background: #fff; color: #000; font-weight: bold; cursor: pointer;">Send</button>
+    </div>
+  {% endform %}
 </div>
