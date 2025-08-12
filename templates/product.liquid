@@ -2,9 +2,29 @@
   <h1>{{ product.title }}</h1>
   <div style="margin-top: 20px;">
     {% if product.featured_image %}
-      <img src="{{ product.featured_image | img_url: '600x' }}" alt="{{ product.title }}" style="max-width: 100%; height: auto;" />
+      <img id="main-product-image" src="{{ product.featured_image | img_url: '600x' }}" alt="{{ product.title }}" style="max-width: 100%; height: auto;" />
     {% endif %}
   </div>
+  {% if product.images.size > 1 %}
+    <div style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+      {% for image in product.images %}
+        <div style="border: 1px solid #fff; padding: 4px; width: 100px;">
+          <img src="{{ image | img_url: '200x' }}" alt="{{ image.alt | escape }}" data-full="{{ image | img_url: '600x' }}" class="product-thumbnail" style="width: 100%; height: auto; cursor: pointer;" />
+        </div>
+      {% endfor %}
+    </div>
+    <script>
+      document.querySelectorAll('.product-thumbnail').forEach(function(thumb) {
+        thumb.addEventListener('click', function() {
+          var fullSrc = this.getAttribute('data-full');
+          var mainImg = document.getElementById('main-product-image');
+          if (mainImg) {
+            mainImg.src = fullSrc;
+          }
+        });
+      });
+    </script>
+  {% endif %}
   <div style="margin-top: 20px;">
     {{ product.description | newline_to_br }}
   </div>
