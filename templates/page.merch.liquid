@@ -22,6 +22,15 @@
       {% if product.featured_image %}
                  <img class="modal-image" src="{{ product.featured_image | image_url: '600x' }}" data-zoom="{{ product.featured_image | image_url: 'master' }}" alt="{{ product.title }}" />
       {% endif %}
+      {% if product.images.size > 1 %}
+        <div class="modal-thumbnails" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+          {% for image in product.images %}
+            <div style="border: 1px solid #fff; padding: 4px; width: 60px;">
+              <img src="{{ image | image_url: '100x100' }}" data-index="{{ forloop.index0 }}" class="modal-thumb" alt="{{ image.alt | escape }}" style="width: 100%; height: auto; cursor: pointer;" />
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
       <h2 style="margin-top: 20px;">{{ product.title }}</h2>
       <div class="modal-description">{{ product.description | default: '' | newline_to_br }}</div>
       {% form 'product', product, class: 'add-to-cart-form' %}
@@ -100,6 +109,18 @@
       }
       if (prev) prev.addEventListener('click', function (e) { e.stopPropagation(); show('prev'); });
       if (next) next.addEventListener('click', function (e) { e.stopPropagation(); show('next'); });
+      var thumbs = modal.querySelectorAll('.modal-thumb');
+      thumbs.forEach(function (thumb) {
+        thumb.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var idx = parseInt(thumb.dataset.index, 10);
+          modal.dataset.current = idx;
+          if (imgTag) {
+            imgTag.src = images[idx];
+            imgTag.dataset.zoom = images[idx];
+          }
+        });
+      });
     });
  // FIXED: Zoom functionality
             var zoom = document.getElementById('zoom-modal');
