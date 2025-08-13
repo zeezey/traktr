@@ -1,3 +1,21 @@
+<style>
+  .modal-thumbnails {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+  .modal-thumbnail {
+    width: 60px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    opacity: 0.7;
+  }
+  .modal-thumbnail.active {
+    border-color: #fff;
+    opacity: 1;
+  }
+</style>
 <div class="page-container" style="text-align: center;">
   <h1>TRAKTR Records Merch</h1>
   <div class="product-grid" style="margin-top: 40px;">
@@ -22,6 +40,11 @@
       {% if product.featured_image %}
         <img class="modal-image" src="{{ product.featured_image | img_url: '600x' }}" data-zoom="{{ product.featured_image | img_url: 'master' }}" alt="{{ product.title }}" />
       {% endif %}
+       <div class="modal-thumbnails">
+        {% for image in product.images %}
+          <img class="modal-thumbnail{% if forloop.first %} active{% endif %}" src="{{ image | img_url: '100x' }}" data-index="{{ forloop.index0 }}" alt="{{ product.title }} thumbnail" />
+        {% endfor %}
+      </div>
       <h2 style="margin-top: 20px;">{{ product.title }}</h2>
       <div class="modal-description">{{ product.description | default: '' | newline_to_br }}</div>
       {% form 'product', product, class: 'add-to-cart-form' %}
@@ -55,7 +78,7 @@
           prod.swapInterval = setInterval(function () {
             idx = (idx + 1) % imgs.length;
             if (imgTag) imgTag.src = imgs[idx];
-          }, 500);
+          }, 400);
         }
       }
 
@@ -86,6 +109,10 @@
           mImgTag.src = mImgs[0];
           mImgTag.dataset.zoom = mImgs[0];
         }
+                var thumbs = modal.querySelectorAll('.modal-thumbnail');
+        thumbs.forEach(function(t, idx) {
+          t.classList.toggle('active', idx === 0);
+        });
       }
     }
 
@@ -105,20 +132,38 @@
       var imgTag = modal.querySelector('.modal-image');
       var prev = modal.querySelector('.prev');
       var next = modal.querySelector('.next');
+      var thumbs = modal.querySelectorAll('.modal-thumbnail');
+      function setImage(index) {
+        if (!images.length) return;
+        modal.dataset.current = index;
+        if (imgTag) {
+          imgTag.src = images[index];
+          imgTag.dataset.zoom = images[index];
+        }
+        thumbs.forEach(function(t) { t.classList.remove('active'); });
+        if (thumbs[index]) thumbs[index].classList.add('active');
+      }
       function show(dir) {
         if (images.length < 2) return;
         var current = parseInt(modal.dataset.current || 0, 10);
         if (dir === 'next') current = (current + 1) % images.length;
         else current = (current - 1 + images.length) % images.length;
-        modal.dataset.current = current;
-        if (imgTag) {
-          imgTag.src = images[current];
-          imgTag.dataset.zoom = images[current];
-        }
+                setImage(current);
+
       }
       if (prev) prev.addEventListener('click', function (e) { e.stopPropagation(); show('prev'); });
       if (next) next.addEventListener('click', function (e) { e.stopPropagation(); show('next'); });
-    });
+      var thumbsContainer = modal.querySelector('.modal-thumbnails');
+      if (thumbsContainer) {
+        thumbsContainer.addEventListener('click', function (e) {
+          var thumb = e.target.closest('.modal-thumbnail');
+          if (!thumb) return;
+          e.stopPropagation();
+          var idx = parseInt(thumb.dataset.index, 10);
+          setImage(idx);
+        });
+      }
+      });
 
     var zoom = document.getElementById('zoom-modal');
     var zoomImg = zoom ? zoom.querySelector('img') : null;
@@ -192,4 +237,3 @@
   </div>
        </div>
        </div>
-       
